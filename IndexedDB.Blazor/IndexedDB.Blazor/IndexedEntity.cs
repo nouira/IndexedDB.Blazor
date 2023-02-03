@@ -15,7 +15,17 @@ namespace IndexedDB.Blazor
             this.TakeSnapshot();
         }
 
-        internal new T Instance => (T)base.Instance;
+        internal new T Instance
+        {
+            get
+            {
+                return (T)base.Instance;
+            }
+            set
+            {
+                if(value is T) base.Instance = value;
+            }
+        }
 
         internal void TakeSnapshot()
         {
@@ -67,6 +77,6 @@ namespace IndexedDB.Blazor
 
         internal EntityState State { get; set; }
 
-        internal object Instance { get; }
+        internal object Instance { get; set; }
     }
 }

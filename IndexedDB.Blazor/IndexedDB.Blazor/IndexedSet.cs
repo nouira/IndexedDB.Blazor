@@ -74,6 +74,41 @@ namespace IndexedDB.Blazor
             return Enumerable.Contains(this, item);
         }
 
+        public bool Replace(T item)
+        {
+            var internalItem = this.internalItems.FirstOrDefault(x => x.Instance.Equals(item));
+
+            if (internalItem != null)
+            {
+                internalItem.State = EntityState.Modified;
+                internalItem.Instance = item;
+
+                return true;
+            }
+            // If reference was lost search for pk, increases the required time
+            else
+            {
+                Debug.WriteLine("Searching for equality with PK");
+
+                var value = this.primaryKey.GetValue(item);
+
+                internalItem = this.internalItems.FirstOrDefault(x => this.primaryKey.GetValue(x.Instance).Equals(value));
+
+                if (internalItem != null)
+                {
+                    Debug.WriteLine($"Found item with id {value}");
+
+                    internalItem.State = EntityState.Modified;
+                    internalItem.Instance = item;
+
+                    return true;
+                }
+            }
+
+            Debug.WriteLine("Could not find internal stored item");
+            return false;
+        }   
+
         public bool Remove(T item)
         {
             var internalItem = this.internalItems.FirstOrDefault(x => x.Instance.Equals(item));
